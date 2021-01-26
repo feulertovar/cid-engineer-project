@@ -24,20 +24,10 @@ jobs:
 workflows:
   node-tests:
     jobs:
-    - test
-    # Envs: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_ECR_ACCOUNT_URL
-    - aws-ecr/build-and-push-image:
-          account-url: AWS_ECR_ACCOUNT_URL
-          repo: '${MY_APP_PREFIX}'
-          region: AWS_REGION
-          dockerfile: dockerfile
-          tag: '${CIRCLE_SHA1}'
-          requires:
-          - test
-    - aws-ecs/deploy-service-update:
-        requires:
-          - aws-ecr/build-and-push-image
-        family: '${MY_APP_PREFIX}-service'
-        cluster-name: '${MY_APP_PREFIX}-cluster'
-        container-image-name-updates: 'container=${MY_APP_PREFIX}-service,tag=${CIRCLE_SHA1}'
+      - test:
+          filters:
+            branches:
+                only: 
+                  - master
+
       
