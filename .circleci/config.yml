@@ -20,7 +20,7 @@ jobs:
         command: npm run test
         name: Run Unit tests
     - store_test_results:
-        path: /tmp/test-results    
+        path: test-results    
 workflows:
   node-tests:
     jobs:
@@ -29,5 +29,12 @@ workflows:
             branches:
                 only: 
                   - master
-
-      
+      # Envs: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_ECR_ACCOUNT_URL
+      - aws-ecr/build-and-push-image:
+            account-url: AWS_ECR_ACCOUNT_URL
+            repo: '${MY_APP_PREFIX}'
+            region: AWS_REGION
+            dockerfile: dockerfile
+            tag: 'latest,${CIRCLE_SHA1}'
+            requires:
+            - test
