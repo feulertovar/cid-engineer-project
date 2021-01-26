@@ -34,7 +34,8 @@ workflows:
             account-url: AWS_ECR_ACCOUNT_URL
             repo: '${MY_APP_PREFIX}'
             region: AWS_REGION
-            dockerfile: dockerfile
+            dockerfile: Dockerfile
             tag: 'latest,${CIRCLE_SHA1}'
+            path: .
             requires:
             - test
