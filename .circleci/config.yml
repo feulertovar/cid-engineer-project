@@ -31,17 +31,17 @@ workflows:
                   - master
       # Envs: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_ECR_ACCOUNT_URL
       - aws-ecr/build-and-push-image:
-            account-url: AWS_ECR_ACCOUNT_URL
-            repo: '${MY_APP_PREFIX}'
-            region: AWS_REGION
-            dockerfile: Dockerfile
-            tag: 'latest,${CIRCLE_SHA1}'
-            path: .
-            requires:
-            - test
+          account-url: AWS_ECR_ACCOUNT_URL
+          repo: '${MY_APP_PREFIX}'
+          region: AWS_REGION
+          dockerfile: Dockerfile
+          tag: '${CIRCLE_SHA1}'
+          path: .
+          requires:
+          - test
       - aws-ecs/deploy-service-update:
           requires:
             - aws-ecr/build-and-push-image
           family: '${MY_APP_PREFIX}-service'
           cluster-name: '${MY_APP_PREFIX}-cluster'
-          container-image-name-updates: 'container=${MY_APP_PREFIX}-service,tag=$latest,${CIRCLE_SHA1}'      
+          container-image-name-updates: 'container=${MY_APP_PREFIX}-service,tag=${CIRCLE_SHA1}'
