@@ -57,7 +57,7 @@ workflows:
           cluster-name: '${MY_APP_PREFIX}-cluster'
           container-image-name-updates: 'container=${MY_APP_PREFIX}-service,tag=${CIRCLE_SHA1}'
           verify-revision-is-deployed: true
-          # Test ELB HTTP end point after deploy
+          # Test ELB HTTP endpoint after deploy
           post-steps:
                 - run:
                     name: Test deployment ELB HTTP
@@ -66,7 +66,7 @@ workflows:
                       ELB_ARN=$(aws elbv2 describe-target-groups --target-group-arns $TARGET_GROUP_ARN | jq -r '.TargetGroups[0].LoadBalancerArns[0]')
                       ELB_DNS_NAME=$(aws elbv2 describe-load-balancers --load-balancer-arns $ELB_ARN | jq -r '.LoadBalancers[0].DNSName')
                       curl -s --retry 10 http://$ELB_DNS_NAME
-      # Test EC2 HTTP end point after deploy
+      # Test EC2 HTTP endpoint after deploy
       - test:
           requires:
             - aws-ecs/deploy-service-update           
