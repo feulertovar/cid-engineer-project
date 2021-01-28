@@ -27,7 +27,7 @@ jobs:
       - attach_workspace:
          at: .
       - run:
-          command: curl -i http://ec2-3-18-107-19.us-east-2.compute.amazonaws.com/
+          command: curl -i AWS_CID_ENDPOINT
           name: Test EC2 HTTP endpoint 
 workflows:
   node-deploy:
