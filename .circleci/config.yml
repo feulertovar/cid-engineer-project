@@ -6,9 +6,8 @@ orbs:
   aws-ecr: circleci/aws-ecr@6.5.0
   # https://circleci.com/developer/orbs/orb/circleci/aws-ecs
   aws-ecs: circleci/aws-ecs@0.0.10
-
 jobs:
-  test:
+  build:
     executor:
       name: node/default
       tag: 14.15.1
@@ -18,17 +17,27 @@ jobs:
         pkg-manager: npm
     - run:
         command: npm run test
-        name: Run Unit tests
-    - store_test_results:
-        path: test-results    
+        name: Run unit tests
+  test:
+    executor:
+      name: node/default
+      tag: 14.15.1
+    steps:
+      # Reuse the workspace from the build job
+      - attach_workspace:
+         at: .
+      - run:
+          command: curl -i http://ec2-3-18-107-19.us-east-2.compute.amazonaws.com/
+          name: Test EC2 HTTP endpoint 
 workflows:
-  node-tests:
+  node-deploy:
     jobs:
-      - test:
+      - build:
           filters:
             branches:
                 only: 
                   - master
+      # Build and push ECR image to repository
       # Envs: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, AWS_ECR_ACCOUNT_URL
       - aws-ecr/build-and-push-image:
           account-url: AWS_ECR_ACCOUNT_URL
@@ -38,10 +47,15 @@ workflows:
           tag: '${CIRCLE_SHA1}'
           path: .
           requires:
-          - test
+          - build
+      # Deploy,update and push service image, task definition to ECS  
       - aws-ecs/deploy-service-update:
           requires:
             - aws-ecr/build-and-push-image
           family: '${MY_APP_PREFIX}-service'
           cluster-name: '${MY_APP_PREFIX}-cluster'
           container-image-name-updates: 'container=${MY_APP_PREFIX}-service,tag=${CIRCLE_SHA1}'
+      # Test EC2 HTTP end point after deploy
+      - test:
+          requires:
+            - aws-ecs/deploy-service-update
