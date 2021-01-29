@@ -27,6 +27,6 @@ or simply
 ```
 jest
 ```
-......
+........
 ## License
 [MIT](./LICENSE)
