@@ -28,7 +28,7 @@ jobs:
          at: .
       - run:
           command: curl -i ${AWS_CID_ENDPOINT}
-          name: Test EC2 HTTP endpoint 
+          name: Test EC2 DNS
 workflows:
   node-deploy:
     jobs:
@@ -60,7 +60,7 @@ workflows:
           # Test ELB HTTP endpoint after deploy
           post-steps:
                 - run:
-                    name: Test deployment ELB HTTP
+                    name: Test deployment ELB DNS
                     command: |
                       TARGET_GROUP_ARN=$(aws ecs describe-services --cluster ${MY_APP_PREFIX}-cluster --services ${MY_APP_PREFIX}-service | jq -r '.services[0].loadBalancers[0].targetGroupArn')
                       ELB_ARN=$(aws elbv2 describe-target-groups --target-group-arns $TARGET_GROUP_ARN | jq -r '.TargetGroups[0].LoadBalancerArns[0]')
